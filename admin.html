@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>信息查看</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <el-table :data="tableData" height="250" border style="width: 100%">
+            <el-table-column prop="type" label="职业">
+            </el-table-column>
+            <el-table-column prop="remark" label="评价">
+            </el-table-column>
+        </el-table>
+    </div>
+</body>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                tableData: [],
+                num: 0
+            }
+        },
+        created() {
+            // 47.105.167.103
+            // 192.168.1.169
+            axios.post('http://47.105.167.103:5000/getForm').then(res => {
+                this.tableData = res.data.message
+            })
+        },
+        watch: {
+        },
+        methods: {
+        }
+    })
+</script>
+
+</html>

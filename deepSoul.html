@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>第六感</title>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <!-- 引入组件库 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .button_box {
+      display: flex;
+      justify-content: center;
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      padding-bottom: 20px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    
+    .el-form-item__label {
+      float: none;
+      margin-left: 10px;
+    }
+    .el-form-item__content {
+      margin-left: 20px!important;
+    }
+    .p_r_20 {
+      padding-right: 20px;
+    }
+    .step_box {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <el-form v-loading="loading" v-if="!success">
+      <el-carousel height="500px" direction="vertical" :autoplay="false" ref="carousel" indicator-position="none">
+        <el-carousel-item>
+          <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" v-if="step===0">
+            <el-form-item label="选择你目前主玩的职业" prop="type" class="step_box">
+              <el-checkbox-group v-model="ruleForm.type">
+                <el-checkbox :label="item" name="type" v-for="item in type"></el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+            <el-form-item label="选择你认为最弱的职业" prop="garbage">
+              <el-checkbox-group v-model="ruleForm.garbage">
+                <el-checkbox :label="item" name="garbage" v-for="item in garbage"></el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+            <el-form-item label="选择你认为最强的职业" prop="hero">
+              <el-checkbox-group v-model="ruleForm.hero">
+                <el-checkbox :label="item" name="hero" v-for="item in hero"></el-checkbox>
+              </el-checkbox-group>
+            </el-form-item>
+          </el-form>
+        </el-carousel-item>
+        <el-carousel-item>
+          <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" v-if="step===1">
+            <el-form-item label="你对战士玩家有什么想说的话" prop="desc" class="step_box p_r_20">
+              <el-input type="textarea" v-model="ruleForm.desc"></el-input>
+            </el-form-item>
+          </el-form>
+        </el-carousel-item>
+      </el-carousel>
+      <div class="button_box">
+        <el-button type="primary" @click="nextStep" :disabled="loading">{{step === 1? '提交': '下一步'}}</el-button>
+      </div>
+    </el-form>
+    <div v-if="success" style="padding-top: 100px;text-align: center;">
+      <p style="color: #888;">来晚了,资源没有了</p>
+      <div style="display: flex;justify-content: center;">
+        <img src="./images/no.png" alt="">
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+  new Vue({
+    el: '#app',
+    data() {
+      return {
+        loading: false,
+        step: 0,
+        ruleForm: {
+          type: [],
+          desc: '',
+          garbage: [],
+          hero: []
+        },
+        type: ['战士', '牧师', '游侠', '法师', '忍者'],
+        garbage: ['战士'],
+        hero: ['游侠'],
+        rules: {
+          type: [
+            { type: 'array', required: true, message: '请选择至少一个主玩的职业', trigger: 'change' }
+          ],
+          garbage: [
+            { type: 'array', required: true, message: '请选择一个最菜职业', trigger: 'change' }
+          ],
+          hero: [
+            { type: 'array', required: true, message: '请选择一个最强职业', trigger: 'change' }
+          ],
+          desc: [
+            { required: true, message: '请填写你的评价', trigger: 'blur' }
+          ]
+        },
+        success: false
+      }
+    },
+    methods: {
+      nextStep() {
+        this.$refs['ruleForm'].validate((valid) => {
+          if (valid) {
+            this.loading = true
+            if (this.step === 1) {
+              axios.post('http://47.105.167.103:5000/survey', this.ruleForm).then(res => {
+                console.log(res)
+                this.$notify.success({
+                  title: '',
+                  message: res.data.message,
+                  showClose: false
+                })
+                var a = setTimeout(() => {
+                  this.success = true
+                },1000)
+              })
+              return
+            }
+            var timer = setTimeout(() => {
+              this.step++
+              this.$refs.carousel.setActiveItem(this.step)
+              this.loading = false
+            }, 500)
+          } else {
+            console.log('error submit!!')
+            return false;
+          }
+        })
+      }
+    }
+  })
+</script>
+
+</html>

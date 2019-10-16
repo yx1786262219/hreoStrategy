@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>大师4</title>
+  <!-- 引入样式 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@1.6/lib/index.css">
+
+  <!-- 引入组件 -->
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vant@1.6/lib/vant.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    .button {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0 10px;
+      margin-top: 10px;
+    }
+    .hide {
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      height: 20px;
+      width: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="hide" @click="hide"></div>
+    <van-cell-group>
+      <van-field v-model="attack" clearable label="攻击" placeholder="请输入" />
+    </van-cell-group>
+    <van-cell-group>
+      <van-field v-model="critical" clearable label="暴击" placeholder="请输入" />
+    </van-cell-group>
+    <van-cell-group>
+      <van-field v-model="blast" clearable label="暴伤" placeholder="请输入" />
+    </van-cell-group>
+    <div class="button">
+      <van-button type="info" @click="computed" size="large">计算</van-button>
+    </div>
+    <van-dialog v-model="show" title="计算结果" show-cancel-button>
+      <div style="box-sizing: border-box;padding: 10px;">
+        <p>装备前伤害期望: {{hurtBefore}}</p>
+        <p>装备后伤害期望：{{hurtAfter}}</p>
+      </div>
+    </van-dialog>
+  </div>
+</body>
+<script>
+  new Vue({
+    el: '#app',
+    data() {
+      return {
+        attack: '',
+        critical: '',
+        blast: '',
+        show: false,
+        hurtBefore: '',
+        hurtAfter: '',
+        num: 0
+      }
+    },
+    methods: {
+      computed() {
+        if (!this.critical || !this.blast || !this.attack || !Number(this.critical) || !Number(this.blast) || !Number(this.attack)) {
+          return this.$toast('请输入完整且为数字');
+        }
+        var a = this.critical / 500
+        this.critical = Number(this.critical)
+        this.blast = Number(this.blast)
+        this.attack = Number(this.attack)
+        if (a < 1) {
+          this.hurtBefore = a * (150 + this.blast) + (1 - a) * 100
+          if (a < 0.9) {
+            this.hurtAfter = (a + 0.1) * (125 + this.blast) + (0.9 - a) * 100
+          } else {
+            this.hurtAfter = 125 + this.blast
+          }
+        } else {
+          this.hurtBefore = 150 + this.blast
+          this.hurtAfter = 125 + this.blast
+        }
+        this.hurtBefore = this.hurtBefore * (1 + this.attack / 700)
+        this.hurtAfter = this.hurtAfter * (1 + (this.attack + this.critical) / 700)
+        console.log(1 + this.attack / 700)
+        console.log(1 + (this.attack + this.critical) / 700)
+        this.show = true
+      },
+      hide() {
+        this.num++
+        if (this.num === 5) {
+          return this.$toast('200AVs')
+        }
+      }
+    }
+  })
+</script>
+
+</html>
