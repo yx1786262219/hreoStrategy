@@ -80,7 +80,7 @@ app.post('/uploadImg', (req, res) => {
         })
     })
 })
-
+var a = 1
 //配置diskStorage来控制文件存储的位置以及文件名字等
 var storage = multer.diskStorage({
     //确定图片存储的位置
